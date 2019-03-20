@@ -1040,6 +1040,10 @@ def CSR_NoRegs : CalleeSavedRegs<(add)>;
 def CSR_32 : CalleeSavedRegs<(add ESI, EDI, EBX, EBP)>;
 def CSR_64 : CalleeSavedRegs<(add RBX, R12, R13, R14, R15, RBP)>;
 
+def CSR_64_GraalH : CalleeSavedRegs<(sub CSR_64, R14)>;
+def CSR_64_GraalT : CalleeSavedRegs<(sub CSR_64, R15)>;
+def CSR_64_GraalHT : CalleeSavedRegs<(sub CSR_64_GraalH, R15)>;
+
 def CSR_64_SwiftError : CalleeSavedRegs<(sub CSR_64, R12)>;
 
 def CSR_32EHRet : CalleeSavedRegs<(add EAX, EDX, CSR_32)>;

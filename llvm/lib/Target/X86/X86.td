@@ -350,6 +350,18 @@ def FeatureRetpolineExternalThunk
           "Enable retpoline, but with an externally provided thunk.",
           [FeatureRetpoline]>;
 
+// Reserve R14 as heap base for GraalVM
+def FeatureGraalHeapBase
+    : SubtargetFeature<
+          "graal-heap-base", "HasGraalHeapBase", "true",
+          "Reserves R14 as heap base register">;
+
+// Reserve R15 as thread pointer for GraalVM
+def FeatureGraalThreadPointer
+    : SubtargetFeature<
+          "graal-thread-pointer", "HasGraalThreadPointer", "true",
+          "Reserves R15 as thread pointer register">;
+
 //===----------------------------------------------------------------------===//
 // Register File Description
 //===----------------------------------------------------------------------===//

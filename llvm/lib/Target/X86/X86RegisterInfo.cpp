@@ -271,6 +271,15 @@ X86RegisterInfo::getCalleeSavedRegs(const MachineFunction *MF) const {
   bool HasAVX = Subtarget.hasAVX();
   bool HasAVX512 = Subtarget.hasAVX512();
   bool CallsEHReturn = MF->callsEHReturn();
+  bool HasGraalHeapBase = Subtarget.hasGraalHeapBase();
+  bool HasGraalThreadPointer = Subtarget.hasGraalThreadPointer();
+
+  if (HasGraalHeapBase && HasGraalThreadPointer)
+    return CSR_64_GraalHT_SaveList;
+  if (HasGraalHeapBase)
+    return CSR_64_GraalH_SaveList;
+  if (HasGraalThreadPointer)
+    return CSR_64_GraalT_SaveList;
 
   CallingConv::ID CC = F.getCallingConv();
 
@@ -530,6 +539,18 @@ BitVector X86RegisterInfo::getReservedRegs(const MachineFunction &MF) const {
     for (MCSubRegIterator I(BasePtr, this, /*IncludeSelf=*/true);
          I.isValid(); ++I)
       Reserved.set(*I);
+  }
+
+  // Set the heap base pointer and thread pointer and their aliases as reserved if needed.
+  if (MF.getSubtarget<X86Subtarget>().hasGraalHeapBase()) {
+  for (MCSubRegIterator I(X86::R14, this, /*IncludeSelf=*/true); I.isValid();
+       ++I)
+    Reserved.set(*I);
+  }
+  if (MF.getSubtarget<X86Subtarget>().hasGraalThreadPointer()) {
+  for (MCSubRegIterator I(X86::R15, this, /*IncludeSelf=*/true); I.isValid();
+       ++I)
+    Reserved.set(*I);
   }
 
   // Mark the segment registers as reserved.

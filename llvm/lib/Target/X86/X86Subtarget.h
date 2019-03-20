@@ -352,6 +352,12 @@ protected:
   /// Use software floating point for code generation.
   bool UseSoftFloat;
 
+  /// Reserve R14 as heap base
+  bool HasGraalHeapBase;
+
+  /// Reserve R15 as thread pointer
+  bool HasGraalThreadPointer;
+
   /// The minimum alignment known to hold of the stack frame on
   /// entry to the function and which must be maintained by every function.
   unsigned stackAlignment;
@@ -584,6 +590,8 @@ public:
   bool hasCLWB() const { return HasCLWB; }
   bool useRetpoline() const { return UseRetpoline; }
   bool useRetpolineExternalThunk() const { return UseRetpolineExternalThunk; }
+  bool hasGraalHeapBase() const { return HasGraalHeapBase; }
+  bool hasGraalThreadPointer() const { return HasGraalThreadPointer; }
 
   bool isXRaySupported() const override { return is64Bit(); }
 

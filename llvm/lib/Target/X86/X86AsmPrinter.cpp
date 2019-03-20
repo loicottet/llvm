@@ -690,7 +690,7 @@ void X86AsmPrinter::EmitEndOfAsmFile(Module &M) {
 //===----------------------------------------------------------------------===//
 
 // Force static initialization.
-extern "C" void LLVMInitializeX86AsmPrinter() {
+extern "C" __attribute__((constructor)) void LLVMInitializeX86AsmPrinter() {
   RegisterAsmPrinter<X86AsmPrinter> X(getTheX86_32Target());
   RegisterAsmPrinter<X86AsmPrinter> Y(getTheX86_64Target());
 }

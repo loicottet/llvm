@@ -3359,7 +3359,7 @@ bool X86AsmParser::parseDirectiveFPOEndProc(SMLoc L) {
 }
 
 // Force static initialization.
-extern "C" void LLVMInitializeX86AsmParser() {
+extern "C" __attribute__((constructor)) void LLVMInitializeX86AsmParser() {
   RegisterMCAsmParser<X86AsmParser> X(getTheX86_32Target());
   RegisterMCAsmParser<X86AsmParser> Y(getTheX86_64Target());
 }

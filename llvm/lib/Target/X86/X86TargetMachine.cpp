@@ -66,7 +66,7 @@ void initializeX86FlagsCopyLoweringPassPass(PassRegistry &);
 
 } // end namespace llvm
 
-extern "C" void LLVMInitializeX86Target() {
+extern "C" __attribute__((constructor)) void LLVMInitializeX86Target() {
   // Register the target.
   RegisterTargetMachine<X86TargetMachine> X(getTheX86_32Target());
   RegisterTargetMachine<X86TargetMachine> Y(getTheX86_64Target());

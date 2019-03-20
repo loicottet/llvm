@@ -70,3 +70,28 @@ add_subdirectory(InstPrinter)
 add_subdirectory(MCTargetDesc)
 add_subdirectory(TargetInfo)
 add_subdirectory(Utils)
+
+add_llvm_loadable_module(X86 ${sources}
+  AsmParser/X86AsmInstrumentation.cpp
+  AsmParser/X86AsmParser.cpp
+  Disassembler/X86Disassembler.cpp
+  Disassembler/X86DisassemblerDecoder.cpp
+  InstPrinter/X86ATTInstPrinter.cpp
+  InstPrinter/X86IntelInstPrinter.cpp
+  InstPrinter/X86InstComments.cpp
+  MCTargetDesc/X86AsmBackend.cpp
+  MCTargetDesc/X86MCTargetDesc.cpp
+  MCTargetDesc/X86MCAsmInfo.cpp
+  MCTargetDesc/X86MCCodeEmitter.cpp
+  MCTargetDesc/X86MachObjectWriter.cpp
+  MCTargetDesc/X86ELFObjectWriter.cpp
+  MCTargetDesc/X86WinCOFFObjectWriter.cpp
+  MCTargetDesc/X86WinCOFFStreamer.cpp
+  MCTargetDesc/X86WinCOFFTargetStreamer.cpp
+  TargetInfo/X86TargetInfo.cpp
+  Utils/X86ShuffleDecode.cpp
+
+  DEPENDS
+  intrinsics_gen
+  PLUGIN_TOOL
+)

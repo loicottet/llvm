@@ -347,6 +347,8 @@ void X86Subtarget::initializeEnvironment() {
   X86ProcFamily = Others;
   GatherOverhead = 1024;
   ScatterOverhead = 1024;
+  HasGraalHeapBase = false;
+  HasGraalThreadPointer = false;
 }
 
 X86Subtarget &X86Subtarget::initializeSubtargetDependencies(StringRef CPU,
