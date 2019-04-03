@@ -141,7 +141,7 @@ static cl::opt<int> EnableGlobalISelAtO(
 static cl::opt<bool> EnableFalkorHWPFFix("aarch64-enable-falkor-hwpf-fix",
                                          cl::init(true), cl::Hidden);
 
-extern "C" void LLVMInitializeAArch64Target() {
+extern "C" __attribute__((constructor)) void LLVMInitializeAArch64Target() {
   // Register the target.
   RegisterTargetMachine<AArch64leTargetMachine> X(getTheAArch64leTarget());
   RegisterTargetMachine<AArch64beTargetMachine> Y(getTheAArch64beTarget());

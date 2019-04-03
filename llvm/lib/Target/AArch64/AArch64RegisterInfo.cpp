@@ -59,8 +59,19 @@ AArch64RegisterInfo::getCalleeSavedRegs(const MachineFunction *MF) const {
     return CSR_AArch64_AAPCS_SwiftError_SaveList;
   if (MF->getFunction().getCallingConv() == CallingConv::PreserveMost)
     return CSR_AArch64_RT_MostRegs_SaveList;
-  else
+  else {
+    bool HasGraalHeapBase = MF->getSubtarget<AArch64Subtarget>().hasGraalHeapBase();
+    bool HasGraalThreadPointer = MF->getSubtarget<AArch64Subtarget>().hasGraalThreadPointer();
+
+    if (HasGraalHeapBase && HasGraalThreadPointer)
+      return CSR_AArch64_AAPCS_GraalHT_SaveList;
+    if (HasGraalHeapBase)
+      return CSR_AArch64_AAPCS_GraalH_SaveList;
+    if (HasGraalThreadPointer)
+      return CSR_AArch64_AAPCS_GraalT_SaveList;
+
     return CSR_AArch64_AAPCS_SaveList;
+  }
 }
 
 const MCPhysReg *AArch64RegisterInfo::getCalleeSavedRegsViaCopy(
@@ -129,6 +140,12 @@ AArch64RegisterInfo::getReservedRegs(const MachineFunction &MF) const {
   if (MF.getSubtarget<AArch64Subtarget>().isX18Reserved())
     markSuperRegs(Reserved, AArch64::W18); // Platform register
 
+  if (MF.getSubtarget<AArch64Subtarget>().hasGraalHeapBase())
+    markSuperRegs(Reserved, AArch64::W27);
+
+  if (MF.getSubtarget<AArch64Subtarget>().hasGraalThreadPointer())
+    markSuperRegs(Reserved, AArch64::W28);
+
   if (hasBasePointer(MF))
     markSuperRegs(Reserved, AArch64::W19);
 
@@ -151,6 +168,12 @@ bool AArch64RegisterInfo::isReservedReg(const MachineFunction &MF,
   case AArch64::X18:
   case AArch64::W18:
     return MF.getSubtarget<AArch64Subtarget>().isX18Reserved();
+  case AArch64::X27:
+  case AArch64::W27:
+    return MF.getSubtarget<AArch64Subtarget>().hasGraalHeapBase();
+  case AArch64::X28:
+  case AArch64::W28:
+    return MF.getSubtarget<AArch64Subtarget>().hasGraalThreadPointer();
   case AArch64::FP:
   case AArch64::W29:
     return TFI->hasFP(MF) || TT.isOSDarwin();

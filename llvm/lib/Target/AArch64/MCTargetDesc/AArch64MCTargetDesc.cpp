@@ -136,7 +136,7 @@ static MCInstrAnalysis *createAArch64InstrAnalysis(const MCInstrInfo *Info) {
 }
 
 // Force static initialization.
-extern "C" void LLVMInitializeAArch64TargetMC() {
+extern "C" __attribute__((constructor)) void LLVMInitializeAArch64TargetMC() {
   for (Target *T : {&getTheAArch64leTarget(), &getTheAArch64beTarget(),
                     &getTheARM64Target()}) {
     // Register the MC asm info.

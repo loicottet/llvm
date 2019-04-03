@@ -149,6 +149,18 @@ def FeatureLSLFast : SubtargetFeature<
     "lsl-fast", "HasLSLFast", "true",
     "CPU has a fastpath logical shift of up to 3 places">;
 
+// Reserve r27 as heap base for GraalVM
+def FeatureGraalHeapBase
+    : SubtargetFeature<
+          "graal-heap-base", "HasGraalHeapBase", "true",
+          "Reserves r27 as heap base register">;
+
+// Reserve r28 as thread pointer for GraalVM
+def FeatureGraalThreadPointer
+    : SubtargetFeature<
+          "graal-thread-pointer", "HasGraalThreadPointer", "true",
+          "Reserves r28 as thread pointer register">;
+
 //===----------------------------------------------------------------------===//
 // Architectures.
 //

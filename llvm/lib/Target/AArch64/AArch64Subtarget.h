@@ -126,6 +126,9 @@ protected:
   // ReserveX18 - X18 is not available as a general purpose register.
   bool ReserveX18;
 
+  bool HasGraalHeapBase = false;
+  bool HasGraalThreadPointer = false;
+
   bool IsLittle;
 
   /// TargetTriple - What processor and OS we're targeting.
@@ -211,6 +214,8 @@ public:
   }
 
   bool isX18Reserved() const { return ReserveX18; }
+  bool hasGraalHeapBase() const { return HasGraalHeapBase; }
+  bool hasGraalThreadPointer() const { return HasGraalThreadPointer; }
   bool hasFPARMv8() const { return HasFPARMv8; }
   bool hasNEON() const { return HasNEON; }
   bool hasCrypto() const { return HasCrypto; }

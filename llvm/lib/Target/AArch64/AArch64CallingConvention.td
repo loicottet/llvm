@@ -288,6 +288,10 @@ def CSR_AArch64_AAPCS : CalleeSavedRegs<(add LR, FP, X19, X20, X21, X22,
                                            D8,  D9,  D10, D11,
                                            D12, D13, D14, D15)>;
 
+def CSR_AArch64_AAPCS_GraalH : CalleeSavedRegs<(sub CSR_AArch64_AAPCS, X27)>;
+def CSR_AArch64_AAPCS_GraalT : CalleeSavedRegs<(sub CSR_AArch64_AAPCS, X28)>;
+def CSR_AArch64_AAPCS_GraalHT : CalleeSavedRegs<(sub CSR_AArch64_AAPCS_GraalH, X28)>;
+
 // Constructors and destructors return 'this' in the iOS 64-bit C++ ABI; since
 // 'this' and the pointer return value are both passed in X0 in these cases,
 // this can be partially modelled by treating X0 as a callee-saved register;
