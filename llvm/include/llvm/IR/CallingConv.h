@@ -220,6 +220,9 @@ namespace CallingConv {
     /// shader if tessellation is in use, or otherwise the vertex shader.
     AMDGPU_ES = 96,
 
+    /// Calling convention used for Graal Java-to-Java calls
+    Graal = 97,
+
     /// The highest possible calling convention ID. Must be some 2^k - 1.
     MaxID = 1023
   };

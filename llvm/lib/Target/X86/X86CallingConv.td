@@ -422,6 +422,10 @@ defm X86_Win64_RegCall :
 defm X86_SysV64_RegCall :
      X86_RegCall_base<RC_X86_64_RegCall_SysV>;
 
+def RetCC_X86_64_Graal: CallingConv<[
+  CCDelegateTo<RetCC_X86_64_C>
+]>;
+
 // This is the root return-value convention for the X86-32 backend.
 def RetCC_X86_32 : CallingConv<[
   // If FastCC, use RetCC_X86_32_Fast.
@@ -701,6 +705,10 @@ def CC_X86_64_WebKit_JS : CallingConv<[
 // builds. On Release builds we fallback to the X86 C calling convention.
 def CC_X86_64_AnyReg : CallingConv<[
   CCCustom<"CC_X86_AnyReg_Error">
+]>;
+
+def CC_X86_64_Graal : CallingConv<[
+  CCDelegateTo<CC_X86_64_C>
 ]>;
 
 //===----------------------------------------------------------------------===//

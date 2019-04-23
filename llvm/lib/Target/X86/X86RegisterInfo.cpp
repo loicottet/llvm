@@ -274,13 +274,6 @@ X86RegisterInfo::getCalleeSavedRegs(const MachineFunction *MF) const {
   bool HasGraalHeapBase = Subtarget.hasGraalHeapBase();
   bool HasGraalThreadPointer = Subtarget.hasGraalThreadPointer();
 
-  if (HasGraalHeapBase && HasGraalThreadPointer)
-    return CSR_64_GraalHT_SaveList;
-  if (HasGraalHeapBase)
-    return CSR_64_GraalH_SaveList;
-  if (HasGraalThreadPointer)
-    return CSR_64_GraalT_SaveList;
-
   CallingConv::ID CC = F.getCallingConv();
 
   // If attribute NoCallerSavedRegisters exists then we set X86_INTR calling
@@ -365,6 +358,13 @@ X86RegisterInfo::getCalleeSavedRegs(const MachineFunction *MF) const {
         return CSR_32_AllRegs_SSE_SaveList;
       return CSR_32_AllRegs_SaveList;
     }
+  case CallingConv::Graal:
+    if (HasGraalHeapBase && HasGraalThreadPointer)
+      return CSR_64_GraalHT_SaveList;
+    if (HasGraalHeapBase)
+      return CSR_64_GraalH_SaveList;
+    if (HasGraalThreadPointer)
+      return CSR_64_GraalT_SaveList;
   default:
     break;
   }
