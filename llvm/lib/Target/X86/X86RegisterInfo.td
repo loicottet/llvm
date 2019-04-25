@@ -341,19 +341,32 @@ def SSP : X86Reg<"ssp", 0>;
 def GR8 : RegisterClass<"X86", [i8],  8,
                         (add AL, CL, DL, AH, CH, DH, BL, BH, SIL, DIL, BPL, SPL,
                              R8B, R9B, R10B, R11B, R14B, R15B, R12B, R13B)> {
-  let AltOrders = [(sub GR8, AH, BH, CH, DH)];
+  let AltOrders = [(sub GR8, AH, BH, CH, DH), (sub GR8, AH, BH, CH, DH, R14B), (sub GR8, AH, BH, CH, DH, R15B), (sub GR8, AH, BH, CH, DH, R14B, R15B)];
   let AltOrderSelect = [{
-    return MF.getSubtarget<X86Subtarget>().is64Bit();
+    if (!MF.getSubtarget<X86Subtarget>().is64Bit())
+      return 0;
+    
+    return 1 + MF.getSubtarget<X86Subtarget>().hasGraalHeapBase() + 2 * MF.getSubtarget<X86Subtarget>().hasGraalThreadPointer();
   }];
 }
 
 def GR16 : RegisterClass<"X86", [i16], 16,
                          (add AX, CX, DX, SI, DI, BX, BP, SP,
-                              R8W, R9W, R10W, R11W, R14W, R15W, R12W, R13W)>;
+                              R8W, R9W, R10W, R11W, R14W, R15W, R12W, R13W)> {
+  let AltOrders = [(sub GR16, R14W), (sub GR16, R15W), (sub GR16, R14W, R15W)];
+  let AltOrderSelect = [{
+    return MF.getSubtarget<X86Subtarget>().hasGraalHeapBase() + 2 * MF.getSubtarget<X86Subtarget>().hasGraalThreadPointer();
+  }];
+}
 
 def GR32 : RegisterClass<"X86", [i32], 32,
                          (add EAX, ECX, EDX, ESI, EDI, EBX, EBP, ESP,
-                              R8D, R9D, R10D, R11D, R14D, R15D, R12D, R13D)>;
+                              R8D, R9D, R10D, R11D, R14D, R15D, R12D, R13D)> {
+  let AltOrders = [(sub GR32, R14D), (sub GR32, R15D), (sub GR32, R14D, R15D)];
+  let AltOrderSelect = [{
+    return MF.getSubtarget<X86Subtarget>().hasGraalHeapBase() + 2 * MF.getSubtarget<X86Subtarget>().hasGraalThreadPointer();
+  }];
+}
 
 // GR64 - 64-bit GPRs. This oddly includes RIP, which isn't accurate, since
 // RIP isn't really a register and it can't be used anywhere except in an
@@ -362,7 +375,12 @@ def GR32 : RegisterClass<"X86", [i32], 32,
 // tests because of the inclusion of RIP in this register class.
 def GR64 : RegisterClass<"X86", [i64], 64,
                          (add RAX, RCX, RDX, RSI, RDI, R8, R9, R10, R11,
-                              RBX, R14, R15, R12, R13, RBP, RSP, RIP)>;
+                              RBX, R14, R15, R12, R13, RBP, RSP, RIP)> {
+  let AltOrders = [(sub GR64, R14), (sub GR64, R15), (sub GR64, R14, R15)];
+  let AltOrderSelect = [{
+    return MF.getSubtarget<X86Subtarget>().hasGraalHeapBase() + 2 * MF.getSubtarget<X86Subtarget>().hasGraalThreadPointer();
+  }];
+}
 
 // Segment registers for use by MOV instructions (and others) that have a
 //   segment register as one operand.  Always contain a 16-bit segment
@@ -413,22 +431,47 @@ def GR64_NOREX : RegisterClass<"X86", [i64], 64,
 // GR32_NOAX - GR32 registers except EAX. Used by AddRegFrm of XCHG32 in 64-bit
 // mode to prevent encoding using the 0x90 NOP encoding. xchg %eax, %eax needs
 // to clear upper 32-bits of RAX so is not a NOP.
-def GR32_NOAX : RegisterClass<"X86", [i32], 32, (sub GR32, EAX)>;
+def GR32_NOAX : RegisterClass<"X86", [i32], 32, (sub GR32, EAX)> {
+  let AltOrders = [(sub GR32_NOAX, R14D), (sub GR32_NOAX, R15D), (sub GR32_NOAX, R14D, R15D)];
+  let AltOrderSelect = [{
+    return MF.getSubtarget<X86Subtarget>().hasGraalHeapBase() + 2 * MF.getSubtarget<X86Subtarget>().hasGraalThreadPointer();
+  }];
+}
 
 // GR32_NOSP - GR32 registers except ESP.
-def GR32_NOSP : RegisterClass<"X86", [i32], 32, (sub GR32, ESP)>;
+def GR32_NOSP : RegisterClass<"X86", [i32], 32, (sub GR32, ESP)> {
+  let AltOrders = [(sub GR32_NOSP, R14D), (sub GR32_NOSP, R15D), (sub GR32_NOSP, R14D, R15D)];
+  let AltOrderSelect = [{
+    return MF.getSubtarget<X86Subtarget>().hasGraalHeapBase() + 2 * MF.getSubtarget<X86Subtarget>().hasGraalThreadPointer();
+  }];
+}
 
 // GR64_NOSP - GR64 registers except RSP (and RIP).
-def GR64_NOSP : RegisterClass<"X86", [i64], 64, (sub GR64, RSP, RIP)>;
+def GR64_NOSP : RegisterClass<"X86", [i64], 64, (sub GR64, RSP, RIP)> {
+  let AltOrders = [(sub GR64_NOSP, R14), (sub GR64_NOSP, R15), (sub GR64_NOSP, R14, R15)];
+  let AltOrderSelect = [{
+    return MF.getSubtarget<X86Subtarget>().hasGraalHeapBase() + 2 * MF.getSubtarget<X86Subtarget>().hasGraalThreadPointer();
+  }];
+}
 
 // GR32_NOREX_NOSP - GR32 registers which do not require a REX prefix except
 // ESP.
 def GR32_NOREX_NOSP : RegisterClass<"X86", [i32], 32,
-                                    (and GR32_NOREX, GR32_NOSP)>;
+                                    (and GR32_NOREX, GR32_NOSP)> {
+  let AltOrders = [(sub GR32_NOREX_NOSP, R14D), (sub GR32_NOREX_NOSP, R15D), (sub GR32_NOREX_NOSP, R14D, R15D)];
+  let AltOrderSelect = [{
+    return MF.getSubtarget<X86Subtarget>().hasGraalHeapBase() + 2 * MF.getSubtarget<X86Subtarget>().hasGraalThreadPointer();
+  }];
+}
 
 // GR64_NOREX_NOSP - GR64_NOREX registers except RSP.
 def GR64_NOREX_NOSP : RegisterClass<"X86", [i64], 64,
-                                    (and GR64_NOREX, GR64_NOSP)>;
+                                    (and GR64_NOREX, GR64_NOSP)> {
+  let AltOrders = [(sub GR64_NOREX_NOSP, R14), (sub GR64_NOREX_NOSP, R15), (sub GR64_NOREX_NOSP, R14, R15)];
+  let AltOrderSelect = [{
+    return MF.getSubtarget<X86Subtarget>().hasGraalHeapBase() + 2 * MF.getSubtarget<X86Subtarget>().hasGraalThreadPointer();
+  }];
+}
 
 // Register classes used for ABIs that use 32-bit address accesses,
 // while using the whole x84_64 ISA.
