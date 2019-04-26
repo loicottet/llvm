@@ -13,8 +13,8 @@ find $llvm_root -type d -name "*" -exec rename 's/aarch64/grarch64/g' {} +
 find $llvm_root -type d -name "*" -exec rename 's/AArch64/GrArch64/g' {} +
 find $llvm_root -type f -name "*" -exec rename 's/aarch64/grarch64/g' {} +
 find $llvm_root -type f -name "*" -exec rename 's/AArch64/GrArch64/g' {} +
-find $llvm_root -type f -name "*" -exec sed -i -E 's/aarch64/grarch64/g' {} +
-find $llvm_root -type f -name "*" -exec sed -i -E 's/AArch64/GrArch64/g' {} +
+find $llvm_root -type f -name "*" -exec sed -i '' -E 's/aarch64/grarch64/g' {} +
+find $llvm_root -type f -name "*" -exec sed -i '' -E 's/AArch64/GrArch64/g' {} +
 
 echo "Building AArch64 shared library..."
 rm -rf build
