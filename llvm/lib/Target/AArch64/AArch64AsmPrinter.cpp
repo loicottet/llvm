@@ -492,30 +492,48 @@ void AArch64AsmPrinter::LowerPATCHPOINT(MCStreamer &OutStreamer, StackMaps &SM,
 
   PatchPointOpers Opers(&MI);
 
-  int64_t CallTarget = Opers.getCallTarget().getImm();
+  const MachineOperand CallTargetMO = Opers.getCallTarget();
   unsigned EncodedBytes = 0;
-  if (CallTarget) {
-    assert((CallTarget & 0xFFFFFFFFFFFF) == CallTarget &&
-           "High 16 bits of call target should be zero.");
-    unsigned ScratchReg = MI.getOperand(Opers.getNextScratchIdx()).getReg();
-    EncodedBytes = 16;
-    // Materialize the jump address:
-    EmitToStreamer(OutStreamer, MCInstBuilder(AArch64::MOVZXi)
-                                    .addReg(ScratchReg)
-                                    .addImm((CallTarget >> 32) & 0xFFFF)
-                                    .addImm(32));
-    EmitToStreamer(OutStreamer, MCInstBuilder(AArch64::MOVKXi)
-                                    .addReg(ScratchReg)
-                                    .addReg(ScratchReg)
-                                    .addImm((CallTarget >> 16) & 0xFFFF)
-                                    .addImm(16));
-    EmitToStreamer(OutStreamer, MCInstBuilder(AArch64::MOVKXi)
-                                    .addReg(ScratchReg)
-                                    .addReg(ScratchReg)
-                                    .addImm(CallTarget & 0xFFFF)
-                                    .addImm(0));
-    EmitToStreamer(OutStreamer, MCInstBuilder(AArch64::BLR).addReg(ScratchReg));
+  unsigned ScratchReg;
+  int64_t CallTarget;
+  MCOperand Dest;
+  if (!(CallTargetMO.isImm() && !CallTargetMO.getImm())) {
+    switch (CallTargetMO.getType()) {
+    default:
+      /// FIXME: Add a verifier check for bad callee types.
+      llvm_unreachable("Unrecognized callee operand type.");
+    case MachineOperand::MO_Immediate:
+      CallTarget = CallTargetMO.getImm();
+      assert((CallTarget & 0xFFFFFFFFFFFF) == CallTarget &&
+             "High 16 bits of call target should be zero.");
+      ScratchReg = MI.getOperand(Opers.getNextScratchIdx()).getReg();
+      EncodedBytes = 16;
+      // Materialize the jump address:
+      EmitToStreamer(OutStreamer, MCInstBuilder(AArch64::MOVZXi)
+                                      .addReg(ScratchReg)
+                                      .addImm((CallTarget >> 32) & 0xFFFF)
+                                      .addImm(32));
+      EmitToStreamer(OutStreamer, MCInstBuilder(AArch64::MOVKXi)
+                                      .addReg(ScratchReg)
+                                      .addReg(ScratchReg)
+                                      .addImm((CallTarget >> 16) & 0xFFFF)
+                                      .addImm(16));
+      EmitToStreamer(OutStreamer, MCInstBuilder(AArch64::MOVKXi)
+                                      .addReg(ScratchReg)
+                                      .addReg(ScratchReg)
+                                      .addImm(CallTarget & 0xFFFF)
+                                      .addImm(0));
+      EmitToStreamer(OutStreamer, MCInstBuilder(AArch64::BLR).addReg(ScratchReg));
+      break;
+    case MachineOperand::MO_ExternalSymbol:
+    case MachineOperand::MO_GlobalAddress:
+      MCInstLowering.lowerOperand(CallTargetMO, Dest);
+      EncodedBytes = 4;
+      EmitToStreamer(OutStreamer, MCInstBuilder(AArch64::BL).addOperand(Dest));
+      break;
+    }
   }
+  
   // Emit padding.
   unsigned NumBytes = Opers.getNumPatchBytes();
   assert(NumBytes >= EncodedBytes &&
