@@ -994,7 +994,9 @@ static bool produceCompactUnwindFrame(MachineFunction &MF) {
   AttributeList Attrs = MF.getFunction().getAttributes();
   return Subtarget.isTargetMachO() &&
          !(Subtarget.getTargetLowering()->supportSwiftError() &&
-           Attrs.hasAttrSomewhere(Attribute::SwiftError));
+           Attrs.hasAttrSomewhere(Attribute::SwiftError)) &&
+         !Subtarget.hasGraalThreadPointer() &&
+         !Subtarget.hasGraalHeapBase();
 }
 
 namespace {
