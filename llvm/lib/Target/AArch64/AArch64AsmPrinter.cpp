@@ -525,6 +525,10 @@ void AArch64AsmPrinter::LowerPATCHPOINT(MCStreamer &OutStreamer, StackMaps &SM,
                                       .addImm(0));
       EmitToStreamer(OutStreamer, MCInstBuilder(AArch64::BLR).addReg(ScratchReg));
       break;
+    case MachineOperand::MO_Register:
+      MCInstLowering.lowerOperand(CallTargetMO, Dest);
+      EncodedBytes = 4;
+      EmitToStreamer(OutStreamer, MCInstBuilder(AArch64::BLR).addOperand(Dest));
     case MachineOperand::MO_ExternalSymbol:
     case MachineOperand::MO_GlobalAddress:
       MCInstLowering.lowerOperand(CallTargetMO, Dest);
